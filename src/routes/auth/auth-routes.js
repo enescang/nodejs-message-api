@@ -24,7 +24,7 @@ router.post('/register', async (req, res) => {
                 email,
                 username,
                 password: hashedPassword,
-                access_token: 'ad',
+                access_token: 'example_access_token',
             });
             const saveUser = await user.save();
 
@@ -75,14 +75,14 @@ router.post('/login', async (req, res) => {
                     access_token: user.access_token,
                 };
                 res.json(responseMessage);
+            } else {
+                res.json('Şifrenizi hatalı girdiniz');
             }
         } else {
             res.json('Lütfen gerekli tüm alanları doldurunuz.');
         }
-
-        // Check user with username
     } catch (error) {
-        res.json('Error: auth/login');
+        res.json('Böyle bir kullanıcı bulunamadı');
     }
 });
 
