@@ -1,5 +1,6 @@
 import express from 'express';
 import multer from 'multer';
+import cors from 'cors';
 import MongoConnection from './src/database/database';
 import * as Routes from './src/routes/index';
 
@@ -8,23 +9,28 @@ const { PORT, DB_NAME } = process.env;
 
 const formData = multer().none();
 
-// Set the Server Routes >>>
+// CORS isteklerine izin veriyoruz
+app.use(cors());
 
-app.use('/auth/', formData, Routes.AuthRoute);
-app.use('/user/', formData, Routes.UserRoute);
+// multipart/form-data desteği
+app.use(formData);
 
-app.use('/message/', formData, Routes.MessageRoute);
+// Tüm Server Route Alanı >>>
 
-// Set the Server Routes <<<
+app.use('/auth/', Routes.AuthRoute);
+app.use('/user/', Routes.UserRoute);
+app.use('/message/', Routes.MessageRoute);
 
-// Start Server >>>
+// Tüm Server Route Alanı <<<
+
+// Sunucu başlat >>>
 app.listen(PORT, () => {
     console.log(`Server is running on ${PORT}`);
 });
-// Start Server <<<
+// Sunucu başlat <<<
 
-// Connect to MongoDB >>>
+// MongoDB bağlantısını kur >>>
 const db = MongoConnection(DB_NAME);
 db.on('error', (error) => console.log(error));
 db.once('open', () => console.log('MongoDB Connected'));
-// Connect to MongoDB <<<
+// MongoDB bağlantısını kur <<<

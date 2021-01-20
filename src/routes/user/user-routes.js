@@ -3,6 +3,7 @@ import { UserSchema } from '../../models';
 
 const router = express.Router();
 
+// Kullanıcı adına göre arama
 router.get('/', async (req, res) => {
     try {
         const { username } = req.query;
@@ -30,6 +31,7 @@ router.get('/', async (req, res) => {
     }
 });
 
+// Tüm kullanıcıların listesi
 router.get('/search', async (req, res) => {
     try {
         const allUser = await UserSchema.aggregate([

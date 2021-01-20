@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 
-// Create mongoDB connection with dynamic system
+// Veritabanı bağlantısı dinamik hâlde yapılmaktadır
 /**
- * Set databaseName for connection mongoose with selected database name
+ * Veritabanı adına göre bağlantı kurulur
  * @param {strign} databaseName
  */
 const DB = (databaseName) => {

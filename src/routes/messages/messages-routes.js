@@ -5,16 +5,17 @@ import { UserSchema, MessageSchema } from '../../models';
 const router = express.Router();
 const { ObjectId } = mongoose.Types;
 
+// Bir kullanıcıya mesaj gönderme
 router.post('/send', async (req, res) => {
     try {
         const { user, text, senderId } = req.body;
-        // Check message sender user is exists
+        // Mesajı gönderen kullanıcıyı kontrolü
         await UserSchema.findById(senderId).orFail();
 
-        // Check message receiver user is exists
+        // Mesajı alan kullanıcı kontrolü
         const receiverUser = await UserSchema.findById(user).orFail();
 
-        // If users are exists create a messge object
+        // Yeni bir mesaj oluştur
         const message = new MessageSchema({
             messageSender: senderId,
             messageReceiver: user,
@@ -74,7 +75,7 @@ router.get('/with_user', async (req, res) => {
     }
 });
 
-// bir kullanıcıya gelen son mesajlar
+// Bir kullanıcıya gelen son mesajlar
 router.get('/convos', async (req, res) => {
     try {
         const { user } = req.query;

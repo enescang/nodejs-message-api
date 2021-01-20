@@ -1,5 +1,6 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 import { UserSchema } from '../../models/index';
 
 const router = express.Router();
@@ -11,24 +12,27 @@ router.post('/register', async (req, res) => {
             username,
             password,
         } = req.body;
+        const { SECRET_KEY, SECRET_ALGORITHM } = process.env;
 
-        const isExists = await UserSchema.findOne({
-            email,
-        });
-        // Check if email is exists on database
+        const isExists = await UserSchema.findOne({ email });
+
+        // Email daha önce kayıtlı değilse
         if (isExists === null) {
             const hashedPassword = await bcrypt.hash(password, 10);
+            const userAccessToken = jwt.sign({ email }, SECRET_KEY, {
+                algorithm: SECRET_ALGORITHM,
+            });
 
-            // Create new user
+            // Yeni bir kullanıcı oluştur
             const user = new UserSchema({
                 email,
                 username,
                 password: hashedPassword,
-                access_token: 'example_access_token',
+                access_token: userAccessToken,
             });
             const saveUser = await user.save();
 
-            // Create response message
+            // Yanıt mesajı oluştur
             const profile = {
                 profile: {
                     _id: saveUser._id,
@@ -54,7 +58,7 @@ router.post('/login', async (req, res) => {
             password,
         } = req.body;
 
-        // Check user with email
+        // Kullanıcıyı email ya da username üzerinden kontrol et
         if ((email != null || username != null) && password != null) {
             const user = await UserSchema.findOne({
                 $or: [{
@@ -63,7 +67,8 @@ router.post('/login', async (req, res) => {
                     username,
                 }],
             }).orFail();
-            // Check if password is correct
+
+            // Şifre doğruluğunu bcrypt ile kontrol et
             const userPassword = await bcrypt.compare(password, user.password);
             if (userPassword === true) {
                 const responseMessage = {
@@ -74,10 +79,12 @@ router.post('/login', async (req, res) => {
                     },
                     access_token: user.access_token,
                 };
+
                 res.json(responseMessage);
             } else {
                 res.json('Şifrenizi hatalı girdiniz');
             }
+            // Gerekli alanlar dolu değil ise
         } else {
             res.json('Lütfen gerekli tüm alanları doldurunuz.');
         }
